@@ -1,68 +1,54 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 摘要
+react16+的核心源码手写，在16版本class component已经不是必须的，重点内容是function component+hooks, 底层实现fiber架构
 
-## Available Scripts
+## jsx
+jsx是通过babel转义成React.createElement执行，构建虚拟dom。
+这就是为什么写了jsx就一定需要import react的原因。
 
-In the project directory, you can run:
+## createElement
 
-### `npm start`
+```html
+   <div id='container'>
+        <input value="foo" />
+        <a href="/bar" />
+        <span></span>
+   </div>
+```
+解析成
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```javascript
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+    React.createElement('div', {id: 'container'},
+        React.createElement('input', {value: 'foo'}),
+        React.createElement('a', {href: '/bar'}),
+        React.createElement('span', null))
+```
 
-### `npm test`
+因此就期待返回
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```javascript
+    const element = {
+      type: "div",
+      props: {
+        id: "container",
+        children: [
+          { type: "input", props: { value: "foo"} },
+          { type: "a", props: { href: "/bar" } },
+          { type: "span", props: {} }
+    ] }
+    };
+```
+那么createElement方法就知道怎么写了
 
-### `npm run build`
+## render
+需要将vdom转为真正的dom，就需要遍历并创建dom
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Concurrent
+注意上⾯面的render，一旦开始，就开始递归，本身这个没啥问题，但是如果应⽤用变得庞⼤大后，会有卡顿，后⾯面状态修改后的diff也是一样，整个vdom对象变⼤大后，diff的过程也有会递归过多导致的卡顿。
+如何解决这个问题？
+浏览器有一个api requestIdleCallback 可以利用浏览器的业余时间，我们可以把任务分成⼀个个的⼩任务，然后利用浏览器空闲时间来做diff，如果当前有任务来了，⽐如⽤户的点击或者动画，会先执行，然后空闲后，再回去把requestIdleCallback没完成的任务完成。
+当然react已经重写了了调度逻辑，不不⽤用requestIdleCallback了了，但是过程是⼀一致的。
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
