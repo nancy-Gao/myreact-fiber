@@ -47,8 +47,11 @@ jsx是通过babel转义成React.createElement执行，构建虚拟dom。
 注意上⾯面的render，一旦开始，就开始递归，本身这个没啥问题，但是如果应⽤用变得庞⼤大后，会有卡顿，后⾯面状态修改后的diff也是一样，整个vdom对象变⼤大后，diff的过程也有会递归过多导致的卡顿。
 如何解决这个问题？
 浏览器有一个api requestIdleCallback 可以利用浏览器的业余时间，我们可以把任务分成⼀个个的⼩任务，然后利用浏览器空闲时间来做diff，如果当前有任务来了，⽐如⽤户的点击或者动画，会先执行，然后空闲后，再回去把requestIdleCallback没完成的任务完成。
-当然react已经重写了了调度逻辑，不不⽤用requestIdleCallback了了，但是过程是⼀一致的。
+当然react已经重写了调度逻辑，不用requestIdleCallback了，但是过程是一致的。
 
+![before](./before.png)
+
+![after](./after.png)
 
 
 
