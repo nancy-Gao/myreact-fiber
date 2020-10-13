@@ -18,7 +18,18 @@ const createElement = (type, props, ...children)=> {
     }
 };
 const render = (vdom, container)=> {
-    container.innerHTML = `<pre>${JSON.stringify(vdom, null, 2)}</pre>`
+    const dom = vdom.type === 'TEXT' ? document.createTextNode('') : document.createElement(vdom.type);
+    // 给dom设置属性
+    Object.keys(vdom.props).forEach(name => {
+        if(name !== 'children') {
+            dom[name] = vdom.props[name];
+        }
+    });
+    // 递归渲染子元素
+    vdom.props.children.map(child=> render(child, dom));
+    // 添加到容器
+    container.appendChild(dom);
+    //container.innerHTML = `<pre>${JSON.stringify(vdom, null, 2)}</pre>`
 };
 export default {
     createElement,
