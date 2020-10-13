@@ -1,10 +1,19 @@
+const createTextElement = text => {
+    return {
+        type: 'TEXT',
+        props: {
+            nodeValue: text,
+            children: [],
+        }
+    }
+};
 const createElement = (type, props, ...children)=> {
     delete props.__source;
     return {
         type,
         props: {
             ...props,
-            children,
+            children: children.map(child => typeof child === 'object' ? child : createTextElement(child)),
         }
     }
 };
